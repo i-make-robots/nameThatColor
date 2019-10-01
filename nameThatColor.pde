@@ -1,3 +1,8 @@
+// Find the name of the color closest to an RGB value
+// color list from https://www.rapidtables.com/web/color/RGB_Color.html
+// dan@marginallyclever.com 2019-10-01
+// CC-BY-SA-NC (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+//----------------------------------------------------
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -18,7 +23,7 @@ ArrayList<NamedColor> colors;
 void setup() {
   colors = new ArrayList<NamedColor>();
   
-  colors.add(new NamedColor("roon", 0x800000 ));
+  colors.add(new NamedColor("maroon", 0x800000 ));
   colors.add(new NamedColor("dark red", 0x8B0000 ));
   colors.add(new NamedColor("brown", 0xA52A2A ));
   colors.add(new NamedColor("firebrick", 0xB22222 ));
@@ -159,17 +164,43 @@ void setup() {
   colors.add(new NamedColor("white", 0xFFFFFF ));
 }
 
-void nameNearestColor(long target) {
+
+/**
+ * finds the name of the nearest known color.
+ * @param target the color to match
+ * @returns the name of the nearest color.
+ */
+String nameNearestColor(color target) {
   NamedColor best=null;
-  long bestDistance = Long.MAX_VALUE;
+  float bestDistance = Long.MAX_VALUE;
+  float r0 = red  (target);
+  float g0 = green(target);
+  float b0 = blue (target);
   
   Iterator<NamedColor> i = colors.iterator();
   while(i.hasNext()) {
     NamedColor c = i.next();
-    int r = red(c.value);
-    
+    float r1 = red  (c.value) - r0;
+    float g1 = green(c.value) - g0;
+    float b1 = blue (c.value) - b0;
+    float dSquared = r1*r1 + g1*g1 + b1*b1;
+    if(bestDistance > dSquared) {
+      bestDistance = dSquared;
+      best = c;
+    }
   }
+  if(best!=null) {
+    return best.name;
+  }
+  return null;
 }
 
 void draw() {
+  int i;
+  
+  for(i=0;i<0xFFFFFF;i+=0x17) {
+    String name = nameNearestColor((color)i);
+    println("best 0x"+hex(i)+"="+name);
+  }
+  while(true); 
 }
